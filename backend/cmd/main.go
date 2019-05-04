@@ -44,6 +44,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			Name:     "jwt",
 			Value:    validToken,
 			HttpOnly: true,
+			Secure:   true,
 		}
 		http.SetCookie(w, c)
 		http.Redirect(w, r, "/chat", 301)
