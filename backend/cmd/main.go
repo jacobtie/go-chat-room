@@ -40,7 +40,14 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, "Error generating token", 500)
 		}
-		http.Redirect(w, r, "/chat/"+validToken, 301)
+		c := &http.Cookie{
+			Name:     "jwt",
+			Value:    validToken,
+			HttpOnly: true,
+			Secure:   true,
+		}
+		http.SetCookie(w, c)
+		http.Redirect(w, r, "/chat", 301)
 	} else {
 		log.Println("Login unsuccessful, " + r.FormValue("password"))
 		http.Redirect(w, r, "/", 301)
@@ -61,7 +68,7 @@ func main() {
 	go hub.Run()
 	r := mux.NewRouter()
 	r.HandleFunc("/", mainHandler).Methods("GET")
-	r.HandleFunc("/chat/{token}", auth.MustAuth(chatHandler)).Methods("GET")
+	r.HandleFunc("/chat", auth.MustAuth(chatHandler)).Methods("GET")
 	r.HandleFunc("/login", loginHandler).Methods("POST")
 	r.HandleFunc("/ws", wsHandler)
 	port := os.Getenv("PORT")
