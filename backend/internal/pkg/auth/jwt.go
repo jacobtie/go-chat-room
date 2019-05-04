@@ -51,6 +51,10 @@ func MustAuth(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
 			}
 			if token.Valid {
 				fn(w, r)
+			} else {
+				log.Println("Wrong JWT: " + params["token"])
+				http.Error(w, "Unauthorized", 401)
+				return
 			}
 		} else {
 			log.Println("No JWT")

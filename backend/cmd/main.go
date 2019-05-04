@@ -40,7 +40,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/chat/"+validToken, 301)
 	} else {
 		log.Println("Login unsuccessful, " + r.FormValue("password"))
-		http.Error(w, "Unauthorized", 401)
+		http.Redirect(w, r, "/", 301)
 	}
 }
 
