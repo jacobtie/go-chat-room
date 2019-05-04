@@ -63,7 +63,7 @@ func main() {
 	r.HandleFunc("/", mainHandler).Methods("GET")
 	r.HandleFunc("/chat/{token}", auth.MustAuth(chatHandler)).Methods("GET")
 	r.HandleFunc("/login", loginHandler).Methods("POST")
-	r.HandleFunc("/ws", auth.MustAuth(wsHandler))
+	r.HandleFunc("/ws", wsHandler)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
