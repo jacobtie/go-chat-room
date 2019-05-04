@@ -42,7 +42,7 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("POST login")
 	r.ParseForm()
-	if password := r.FormValue("password"); password == "greenlantern" {
+	if password := r.FormValue("password"); password == os.Getenv("GO_CHAT_PASS") {
 		log.Println("Login successful")
 		validToken, err := auth.GenerateJWT()
 		if err != nil {
