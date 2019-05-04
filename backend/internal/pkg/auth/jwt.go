@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/mux"
 )
 
 var signingKey = []byte("inbrightestday")
@@ -36,31 +35,37 @@ func GenerateJWT(user string) (string, error) {
 // MustAuth is middleware that will force an authentication
 func MustAuth(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		params := mux.Vars(r)
-
-		log.Println("Authenticating")
-		if params["token"] != "" {
-			token, err := jwt.Parse(params["token"], func(token *jwt.Token) (interface{}, error) {
-				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, errors.New("Incorrect JWT")
-				}
-				return signingKey, nil
-			})
-			if err != nil {
-				log.Println("Wrong JWT: " + params["token"])
-				http.Error(w, "Unauthorized", 401)
-				return
-			}
-			if token.Valid {
-				fn(w, r)
-			} else {
-				log.Println("Wrong JWT: " + params["token"])
-				http.Error(w, "Unauthorized", 401)
-				return
-			}
-		} else {
-			log.Println("No JWT")
+		log.Printf("Authenticating")
+		cookie, err := r.Cookie("jwt")
+		if err != nil {
+			log.Printf("No cookie found")
 			http.Error(w, "Unauthorized", 401)
+			return
+		}
+		tokenVal := cookie.Value
+		if tokenVal == "" {
+			log.Printf("Cookie value is empty")
+			http.Error(w, "Unauthorized", 401)
+			return
+		}
+		token, err := jwt.Parse(tokenVal, func(t *jwt.Token) (interface{}, error) {
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, errors.New("Incorrect JWT")
+			}
+			return signingKey, nil
+		})
+		if err != nil {
+			log.Printf(err.Error())
+			http.Error(w, "Unauthorized", 401)
+			return
+		}
+		if token.Valid {
+			log.Printf("Authentication successful")
+			fn(w, r)
+		} else {
+			log.Printf("Invalid token")
+			http.Error(w, "Invalid authentication", 401)
+			return
 		}
 	}
 }
