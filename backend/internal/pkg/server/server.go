@@ -18,7 +18,7 @@ func setUpRoutes(r *mux.Router) {
 	r.HandleFunc("/", mainHandler).Methods("GET")
 	r.HandleFunc("/chat", auth.MustAuth(chatHandler)).Methods("GET")
 	r.HandleFunc("/login", loginHandler).Methods("POST")
-	r.HandleFunc("/ws", wsHandler)
+	r.HandleFunc("/ws", auth.MustAuth(wsHandler))
 }
 
 func renderTemplate(w http.ResponseWriter, filename string, data map[string]interface{}) {
