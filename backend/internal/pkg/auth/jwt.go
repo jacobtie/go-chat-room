@@ -6,12 +6,13 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
-var signingKey = []byte("inbrightestday")
+var signingKey = []byte(os.Getenv("GO_CHAT_SECRET"))
 
 // GenerateJWT generates and returns a JWT
 func GenerateJWT() (string, error) {
