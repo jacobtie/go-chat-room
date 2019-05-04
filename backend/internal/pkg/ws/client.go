@@ -1,4 +1,4 @@
-// From https://github.com/gorilla/websocket/blob/master/examples/chat/client.go
+// From https://github.com/gorilla/websocket/
 
 package ws
 
