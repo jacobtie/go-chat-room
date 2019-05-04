@@ -6,7 +6,7 @@ package ws
 type Hub struct {
 	clients map[*Client]bool
 
-	broadcast chan []byte
+	broadcast chan Message
 
 	register chan *Client
 
@@ -16,7 +16,7 @@ type Hub struct {
 // NewHub makes and returns a reference to a hub
 func NewHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan Message),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),

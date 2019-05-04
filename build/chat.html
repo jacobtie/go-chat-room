@@ -21,7 +21,8 @@ window.onload = () => {
         if (!msg.value) {
             return;
         }
-        conn.send(msg.value);
+        let cookie = document.cookie.split(";").filter(c => c.split("=")[0] === "username")[0];
+        conn.send(JSON.stringify({Username: cookie.split("=")[1], Text: msg.value}));
         msg.value = "";
     };
 
@@ -33,12 +34,11 @@ window.onload = () => {
             appendLog(item);
         };
         conn.onmessage = function (evt) {
-            var messages = evt.data.split('\n');
-            for (var i = 0; i < messages.length; i++) {
-                var item = document.createElement("div");
-                item.innerText = messages[i];
-                appendLog(item);
-            }
+            let username = JSON.parse(evt.data).Username;
+            let message = JSON.parse(evt.data).Text;
+            var item = document.createElement("div");
+            item.innerText = username + ": " + message;
+            appendLog(item);
         };
     } else {
         var item = document.createElement("div");
