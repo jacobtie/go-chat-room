@@ -35,11 +35,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Login successful")
 		validToken, err := auth.GenerateJWT(r.FormValue("username"))
 		if err != nil {
-
+			http.Error(w, "Error generating token", 500)
 		}
 		http.Redirect(w, r, "/chat/"+validToken, 301)
 	} else {
-		log.Println("Login unsuccessful")
+		log.Println("Login unsuccessful, " + r.FormValue("password"))
 		http.Error(w, "Unauthorized", 401)
 	}
 }
