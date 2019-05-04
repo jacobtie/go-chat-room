@@ -1,6 +1,6 @@
 @echo off
 echo Building server ...
-cd src/cmd
+cd backend/cmd
 go build -o ../../build/server.exe
 cd ../../
 pause

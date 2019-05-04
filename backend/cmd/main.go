@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/jacobtie/go-chat-room/backend/internal/pkg/auth"
+
 	"html/template"
 	"log"
 	"net/http"
@@ -26,9 +28,14 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "index.html", nil)
 }
 
+func chatHandler(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", mainHandler).Methods("GET")
+	r.HandleFunc("/chat", auth.AuthMiddle(chatHandler)).Methods("GET")
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
