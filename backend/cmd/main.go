@@ -28,14 +28,32 @@ func mainHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "index.html", nil)
 }
 
-func chatHandler(w http.ResponseWriter, r *http.Request) {
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("POST login")
+	r.ParseForm()
+	if password := r.FormValue("password"); password == "greenlantern" {
+		log.Println("Login successful")
+		validToken, err := auth.GenerateJWT(r.FormValue("username"))
+		if err != nil {
 
+		}
+		http.Redirect(w, r, "/chat/"+validToken, 301)
+	} else {
+		log.Println("Login unsuccessful")
+		http.Error(w, "Unauthorized", 401)
+	}
+}
+
+func chatHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("GET chat")
+	renderTemplate(w, "chat.html", nil)
 }
 
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", mainHandler).Methods("GET")
-	r.HandleFunc("/chat", auth.MustAuth(chatHandler)).Methods("GET")
+	r.HandleFunc("/chat/{token}", auth.MustAuth(chatHandler)).Methods("GET")
+	r.HandleFunc("/login", loginHandler).Methods("POST")
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
