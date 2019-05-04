@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -43,7 +44,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	if password := r.FormValue("password"); password == "greenlantern" {
 		log.Println("Login successful")
-		validToken, err := auth.GenerateJWT(r.FormValue("username"))
+		validToken, err := auth.GenerateJWT()
 		if err != nil {
 			http.Error(w, "Error generating token", 500)
 		}
@@ -51,9 +52,15 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			Name:     "jwt",
 			Value:    validToken,
 			HttpOnly: true,
-			Secure:   true,
+			Expires:  time.Now().Add(time.Minute * 30),
 		}
 		http.SetCookie(w, c)
+		userCookie := &http.Cookie{
+			Name:    "username",
+			Value:   r.FormValue("username"),
+			Expires: time.Now().Add(time.Minute * 30),
+		}
+		http.SetCookie(w, userCookie)
 		http.Redirect(w, r, "/chat", 301)
 	} else {
 		log.Println("Login unsuccessful, " + r.FormValue("password"))

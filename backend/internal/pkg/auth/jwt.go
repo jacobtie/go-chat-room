@@ -14,13 +14,13 @@ import (
 var signingKey = []byte("inbrightestday")
 
 // GenerateJWT generates and returns a JWT
-func GenerateJWT(user string) (string, error) {
+func GenerateJWT() (string, error) {
+	log.Printf("Generating new JWT")
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
 
 	claims["authorized"] = true
-	claims["username"] = user
 	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
 
 	tokenString, err := token.SignedString(signingKey)
@@ -55,7 +55,7 @@ func MustAuth(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
 			return signingKey, nil
 		})
 		if err != nil {
-			log.Printf(err.Error())
+			log.Printf("Parse failed, " + err.Error())
 			http.Error(w, "Unauthorized", 401)
 			return
 		}
