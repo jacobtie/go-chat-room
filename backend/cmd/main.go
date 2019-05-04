@@ -35,7 +35,7 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", mainHandler).Methods("GET")
-	r.HandleFunc("/chat", auth.AuthMiddle(chatHandler)).Methods("GET")
+	r.HandleFunc("/chat", auth.MustAuth(chatHandler)).Methods("GET")
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
