@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/jacobtie/go-chat-room/backend/internal/pkg/auth"
+	"github.com/jacobtie/go-chat-room/backend/internal/pkg/ws"
 
 	"html/template"
 	"log"
@@ -10,6 +11,8 @@ import (
 
 	"github.com/gorilla/mux"
 )
+
+var hub *ws.Hub
 
 func renderTemplate(w http.ResponseWriter, filename string, data map[string]interface{}) {
 	wd, err := os.Getwd()
@@ -49,11 +52,18 @@ func chatHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "chat.html", nil)
 }
 
+func wsHandler(w http.ResponseWriter, r *http.Request) {
+	ws.ServeWs(hub, w, r)
+}
+
 func main() {
+	hub = ws.NewHub()
+	go hub.Run()
 	r := mux.NewRouter()
 	r.HandleFunc("/", mainHandler).Methods("GET")
 	r.HandleFunc("/chat/{token}", auth.MustAuth(chatHandler)).Methods("GET")
 	r.HandleFunc("/login", loginHandler).Methods("POST")
+	r.HandleFunc("/ws", auth.MustAuth(wsHandler))
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
