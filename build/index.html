@@ -1,3 +1,7 @@
 {{define "content"}}
-<p>Sign in and stuff will go here</p>
+<form action="/login" method="POST">
+    <input type="text" placeholder="Username" name="username" />
+    <input type="password" placeholder="Room Password" name="password" />
+    <button type="submit" value="Submit">Submit</button>
+</form>
 {{end}}

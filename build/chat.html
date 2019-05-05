@@ -1,0 +1,50 @@
+{{define "content"}}
+<div id="log-box"></div>
+<form id="form">
+    <input type="text" id="msg" />
+    <input type="submit" value="Send" />
+</form>
+<script type="text/javascript">
+// From https://github.com/gorilla/websocket/
+window.onload = () => {
+    let conn;
+    let msg = document.getElementById('msg');
+    let log = document.getElementById('log-box');
+
+    let appendLog = item => log.appendChild(item);
+
+    document.getElementById("form").onsubmit = (e) => {
+        e.preventDefault();
+        if (!conn) {
+            return;
+        }
+        if (!msg.value) {
+            return;
+        }
+        let cookie = document.cookie.split(";").filter(c => c.split("=")[0] === "username")[0];
+        conn.send(JSON.stringify({Username: cookie.split("=")[1], Text: msg.value}));
+        msg.value = "";
+    };
+
+    if (window["WebSocket"]) {
+        conn = new WebSocket("wss://" + document.location.host + "/ws");
+        conn.onclose = function (evt) {
+            var item = document.createElement("div");
+            item.innerHTML = "<b>Connection closed.</b>";
+            appendLog(item);
+        };
+        conn.onmessage = function (evt) {
+            let username = JSON.parse(evt.data).Username;
+            let message = JSON.parse(evt.data).Text;
+            var item = document.createElement("div");
+            item.innerText = username + ": " + message;
+            appendLog(item);
+        };
+    } else {
+        var item = document.createElement("div");
+        item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
+        appendLog(item);
+    }
+};
+</script>
+{{end}}
