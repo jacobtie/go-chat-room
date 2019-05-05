@@ -98,4 +98,5 @@ func Run() {
 		log.Fatal(err)
 	}
 	log.Fatal(http.ListenAndServeTLS(":"+port, wd+"/localhost.pem", wd+"/localhost-key.pem", r))
+	// log.Fatal(http.ListenAndServe(":"+port, r))
 }
