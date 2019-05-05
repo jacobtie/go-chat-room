@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -23,11 +24,11 @@ func setUpRoutes(r *mux.Router) {
 }
 
 func renderTemplate(w http.ResponseWriter, filename string, data map[string]interface{}) {
-	wd, err := os.Getwd()
+	wd, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		log.Fatal(err)
 	}
-	t, err := template.ParseFiles(wd+"/build/base.html", wd+"/build/"+filename)
+	t, err := template.ParseFiles(wd+"/base.html", wd+"/"+filename)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,12 +53,14 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			Name:     "jwt",
 			Value:    validToken,
 			HttpOnly: true,
+			Secure:   true,
 			Expires:  time.Now().Add(time.Minute * 30),
 		}
 		http.SetCookie(w, c)
 		userCookie := &http.Cookie{
 			Name:    "username",
 			Value:   r.FormValue("username"),
+			Secure:  true,
 			Expires: time.Now().Add(time.Minute * 30),
 		}
 		http.SetCookie(w, userCookie)
@@ -90,5 +93,10 @@ func Run() {
 		port = "8080"
 	}
 	log.Println("Starting server on PORT " + port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	wd, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Fatal(http.ListenAndServeTLS(":"+port, wd+"/localhost.pem", wd+"/localhost-key.pem", r))
+	// log.Fatal(http.ListenAndServe(":"+port, r))
 }
